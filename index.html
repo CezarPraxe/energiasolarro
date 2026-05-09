@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extrator de Faturas - Energisa</title>
+    <!-- Fonte Inter do Google Fonts para visual moderno -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- PDF.js para processar PDFs localmente -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Extrator Energisa ⚡</h1>
+            <p>Auditoria de ICMS Indevido</p>
+        </header>
+
+        <main>
+            <div class="upload-section">
+                <!-- Botão clássico de Adicionar Arquivos como pedido pelo usuário -->
+                <input type="file" id="file-input" multiple accept="application/pdf" style="display: none;">
+                <label for="file-input" class="btn-primary upload-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    Adicionar PDFs
+                </label>
+                <p class="upload-hint">Selecione uma ou mais faturas da Energisa (.pdf)</p>
+            </div>
+
+            <div class="results-section" id="results-section" style="display: none;">
+                <div class="summary-cards">
+                    <div class="card">
+                        <h3>Total a Restituir</h3>
+                        <p class="highlight-value" id="total-restituicao">R$ 0,00</p>
+                    </div>
+                </div>
+
+                <div class="results-header">
+                    <h2>Dados Extraídos (<span id="file-count">0</span> faturas)</h2>
+                    <div class="action-buttons">
+                        <button id="debug-btn" class="btn-secondary" style="background-color: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: #fbbf24;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                            Baixar Raio-X (.txt)
+                        </button>
+                        <button id="ollama-btn" class="btn-ollama">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                            Gerar Parecer (Gemma 3)
+                        </button>
+                        <button id="export-btn" class="btn-secondary">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Exportar CSV
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table id="data-table">
+                        <thead>
+                            <tr>
+                                <th>Mês / Fatura</th>
+                                <th>Consumo (kWh)</th>
+                                <th>Injeção (kWh)</th>
+                                <th>Base ICMS (R$)</th>
+                                <th>Alíquota</th>
+                                <th>A Restituir (R$)</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- Linhas inseridas via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Modal do Parecer -->
+                <div id="ollama-modal" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>Parecer Técnico - Gemma 3</h2>
+                            <span class="close-btn">&times;</span>
+                        </div>
+                        <div class="modal-body">
+                            <div id="ollama-loading" style="display: none;">Processando com a IA local... ⚡</div>
+                            <textarea id="ollama-result" readonly placeholder="O parecer gerado aparecerá aqui..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
